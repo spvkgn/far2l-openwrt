@@ -1,0 +1,117 @@
+name: build-nightly
+
+on:
+  # Run nightly
+  schedule:
+    - cron: '0 0 * * *'
+  # Allow for manual dispatch
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_date: ${{ steps.repo.outputs.commit_date }}
+      commit_sha: ${{ steps.repo.outputs.commit_sha }}
+      commit_url: ${{ steps.repo.outputs.commit_url }}
+      release_tag: ${{ steps.repo.outputs.release_tag }}
+      is_active: ${{ steps.activity.outputs.is_active }}
+    steps:
+      - name: Get repo data via GH API
+        id: repo
+        env:
+          GH_REPO: elfmz/far2l
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "commit_date=$(gh api repos/$GH_REPO/commits/master --jq '.commit.committer.date')" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(gh api repos/$GH_REPO/commits/master --jq '.sha')" >> $GITHUB_OUTPUT
+          echo "commit_url=$(gh api repos/$GH_REPO/commits/master --jq '.html_url')" >> $GITHUB_OUTPUT
+          echo "release_tag=$(gh api repos/$GH_REPO/releases/latest --jq '.name')" >> $GITHUB_OUTPUT
+      - name: Check for repo activity
+        id: activity
+        env:
+          DATE: ${{ steps.repo.outputs.commit_date }}
+          URL: ${{ steps.repo.outputs.commit_url }}
+        run: |
+          TIMESTAMP=$(date --utc -d $DATE +%s)
+          DAYS=$(( ( $(date --utc +%s) - $TIMESTAMP ) / 86400 ))
+          echo "Repository activity: $(date --utc -d $DATE)"
+          echo "Commit: $URL"
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            is_active=true
+          elif [[ $DAYS -lt 1 ]] ; then
+            is_active=true
+          else
+            echo "Repository not updated."
+            is_active=false
+          fi
+          echo "is_active=$is_active" >> $GITHUB_OUTPUT
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.is_active == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - version: openwrt-21.02
+            target_arch: ramips-mt7621
+          - version: master
+            target_arch: x86-64
+    container:
+      image: openwrt/sdk:${{ matrix.target_arch }}-${{ matrix.version }}
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build packages
+        working-directory: /builder
+        shell: bash
+        env:
+          SHA: ${{ needs.prepare.outputs.commit_sha }}
+          TAG: ${{ needs.prepare.outputs.release_tag }}
+        run: |
+          export GIT_HASH=${SHA:0:7}
+          export FAR2L_VERSION=$(echo $TAG | grep -Po '(\d+\.)+\d+')-$GIT_HASH
+          cp -rf ${GITHUB_WORKSPACE}/far2l ./package
+          # sed -i 's/git\.openwrt\.org\/openwrt/github\.com\/openwrt/g' ./feeds.conf.default
+          # sed -i 's/git\.openwrt\.org\/feed\/packages/github\.com\/openwrt\/packages/g' ./feeds.conf.default
+          ./scripts/feeds update base packages
+          ./scripts/feeds install libarchive-noopenssl libpcre
+          make defconfig
+          make package/far2l/compile V=sc -j$(nproc) BUILD_LOG=1
+          find ./bin/packages/*/base -name 'far2l*.ipk' -exec cp -t . {} +
+          tar czvf logs.tar.gz logs
+      - name: Upload IPK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ipk-${{ matrix.target_arch }}-${{ matrix.version }}
+          path: /builder/far2l*.ipk
+          if-no-files-found: error
+      - name: Upload build logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: buildlog-${{ matrix.target_arch }}-${{ matrix.version }}
+          path: /builder/logs.tar.gz
+
+  badge:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create version string for badge
+        shell: bash
+        env:
+          SHA: ${{ needs.prepare.outputs.commit_sha }}
+          TAG: ${{ needs.prepare.outputs.release_tag }}
+        run: |
+          echo VERSION=$(echo $TAG | grep -Po '(\d+\.)+\d+')-${SHA:0:7} >> $GITHUB_ENV
+      - name: Write to gist
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: f53cb6c1d56b0eaf40c88d607fc5fef1
+          filename: far2l-openwrt.json
+          label: version
+          message: ${{ env.VERSION }}
+          color: blue
