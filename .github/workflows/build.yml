@@ -1,12 +1,9 @@
 name: build
-run-name: Nightly build for ${{ github.event.client_payload.sha }}
+run-name: 🌙 Nightly build for ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.sha }}
 
 on:
   repository_dispatch:
     types: [build-nightly]
-
-env:
-  REPO: 'elfmz/far2l'
 
 jobs:
   build:
@@ -14,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # max-parallel: 8
       matrix:
-        branch: [openwrt-21.02, openwrt-22.03]
+        branch: [openwrt-22.03]
         arch:
           - aarch64_cortex-a53
           - aarch64_cortex-a72
@@ -47,17 +45,20 @@ jobs:
           - mipsel_mips32
           - x86_64
         include:
+          - branch: openwrt-21.02
+            arch: mipsel_24kc
           - branch: SNAPSHOT
             arch: x86_64
-        exclude:
-          - branch: openwrt-21.02
-            arch: arm_cortex-a7_vfpv4
+        # exclude:
+        #   - branch: openwrt-21.02
+        #     arch: arm_cortex-a7_vfpv4
     container:
       image: openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup ccache
         uses: actions/cache@v3
         with:
@@ -65,6 +66,7 @@ jobs:
           key: ccache-${{ matrix.arch }}-${{ matrix.branch }}-${{ github.event.client_payload.sha }}
           restore-keys: |
             ccache-${{ matrix.arch }}-${{ matrix.branch }}-
+
       - name: Build packages
         id: build
         continue-on-error: true
@@ -78,36 +80,83 @@ jobs:
           BRANCH: ${{ matrix.branch }}
           SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
         run: |
-          export GIT_HASH=${SHA:0:7}
-          export FAR2L_VERSION=$(echo $TAG | grep -Po '(\d+\.)+\d+')+git$(date --utc -d $DATE +%Y%m%d)
-          cp -rf ${GITHUB_WORKSPACE}/far2l ./package
+          VERSION=${TAG}+git${DATE}
+          cp -vr ${GITHUB_WORKSPACE}/far2l package
+          sed "s|@VERSION@|$VERSION|" -i package/far2l/Makefile
+          sed "s|@GIT_HASH@|$SHA|" -i package/far2l/Makefile
+          sed 's|base.*\.git|base https://github.com/openwrt/openwrt.git|' -i feeds.conf.default
+          sed 's|packages.*\.git|packages https://github.com/openwrt/packages.git|' -i feeds.conf.default
           ./scripts/feeds update base packages
           ./scripts/feeds install -a
           make defconfig
           make package/far2l/compile V=s -j$(nproc) CONFIG_CCACHE=1 BUILD_LOG=1
-          ./staging_dir/host/bin/ccache -d .ccache -s
+          ./staging_dir/host/bin/ccache --dir .ccache --max-size=50M --show-stats
           find ./bin/packages/*/base -type f ! -name 'far2l*.ipk' -delete
           echo "$SIGN_KEY" | base64 -d > key-build
           make package/index
           ls -1R ./bin/packages/*/base
           tar cvf ipk-$ARCH-$BRANCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names -C ./bin/packages/*/base .
-          tar cJvf logs-$ARCH-$BRANCH.tar.xz ./logs
+          # tar cJvf logs-$ARCH-$BRANCH.tar.xz ./logs
+
       - name: Upload IPK
         if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v3
         with:
           name: ipk-${{ matrix.arch }}-${{ matrix.branch }}
           path: /builder/ipk-${{ matrix.arch }}-${{ matrix.branch }}.tar
+
       - name: Upload build logs
-        if: ${{ always() }}
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: logs-${{ matrix.arch }}-${{ matrix.branch }}
-          path: /builder/logs-${{ matrix.arch }}-${{ matrix.branch }}.tar.xz
+          path: /builder/logs/
+          # path: /builder/logs-${{ matrix.arch }}-${{ matrix.branch }}.tar.xz
+
+  gh-pages:
+    needs: build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Merge artifacts
+        id: merge
+        run: |
+          mkdir public
+          find . -name 'ipk-*.tar' -exec tar xvf {} -C ./public \;
+
+      - name: Deploy to GH pages
+        id: deploy
+        if: steps.merge.outcome == 'success'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          full_commit_message: ${{ github.event.client_payload.repo }}@${{ github.event.client_payload.sha }}
+          force_orphan: true
+
+      - name: Update version for badge
+        if: steps.deploy.outcome == 'success'
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: f53cb6c1d56b0eaf40c88d607fc5fef1
+          filename: far2l-openwrt.json
+          label: version
+          message: ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.sha }}
+          color: blue
+
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        continue-on-error: true
 
   release:
     name: Upload Nightly release ${{ matrix.branch }}
-    needs: build
+    needs: gh-pages
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -115,74 +164,34 @@ jobs:
       max-parallel: 1
       matrix:
         branch: ['21.02', '22.03']
+    env:
+      DATE: ${{ github.event.client_payload.date }}
     steps:
-      - run: echo "DATE=$(date --utc -d $DATE +%Y%m%d)" >> $GITHUB_ENV
-        env:
-          DATE: ${{ github.event.client_payload.date }}
       - name: Download artifacts
         uses: actions/download-artifact@v3
-      - name: Merge artifacts
+
+      - name: Merge .ipk into .tar
         id: merge
         env:
           BRANCH: ${{ matrix.branch }}
-          DATE: ${{ env.DATE }}
         run: |
           find . -name "ipk-*$BRANCH.tar" -exec tar xvf {} --wildcards '*.ipk' \;
           mkdir -p public
           find $BRANCH -mindepth 1 -type d -exec sh -c 'tar cvf ./public/far2l_${DATE}_$(basename {}).ipk.tar -C {} .' \;
           ls -1hs public
-      - name: Upload
+
+      - name: Store .tar files
         if: steps.merge.outcome == 'success'
         uses: andelf/nightly-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ github.event.client_payload.url }}
+          MESSAGE: ${{ github.event.client_payload.message }}
         with:
+          prerelease: false
           tag_name: ${{ matrix.branch }}
           name: '${{ env.DATE }} for OpenWrt ${{ matrix.branch }}'
-          prerelease: false
           body: |
-            ${{ env.REPO }}@${{ github.event.client_payload.sha }}
+            ${{ env.URL }}: ${{ env.MESSAGE }}
           files: |
             ./public/*.tar
-
-  deploy:
-    needs: build
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-      - name: Merge artifacts
-        id: merge
-        run: |
-          mkdir public
-          find . -name 'ipk-*.tar' -exec tar xvf {} -C ./public \;
-      - name: Deploy to GH pages
-        if: steps.merge.outcome == 'success'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          full_commit_message: ${{ env.REPO }}@${{ github.event.client_payload.sha }}
-          force_orphan: true
-      - name: Create version string for badge
-        shell: bash
-        env:
-          SHA: ${{ github.event.client_payload.sha }}
-          TAG: ${{ github.event.client_payload.tag }}
-        run: |
-          echo "VERSION=$(echo $TAG | grep -Po '(\d+\.)+\d+')-${SHA:0:7}" >> $GITHUB_ENV
-      - name: Write to gist
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: f53cb6c1d56b0eaf40c88d607fc5fef1
-          filename: far2l-openwrt.json
-          label: version
-          message: ${{ env.VERSION }}
-          color: blue
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v2
-        continue-on-error: true
