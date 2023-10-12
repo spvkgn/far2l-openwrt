@@ -13,12 +13,11 @@ jobs:
       fail-fast: false
       # max-parallel: 8
       matrix:
-        branch: [openwrt-22.03]
+        branch: [openwrt-22.03, openwrt-23.05]
         arch:
           - aarch64_cortex-a53
           - aarch64_cortex-a72
           - aarch64_generic
-          - arc_archs
           - arm_arm1176jzf-s_vfp
           - arm_arm926ej-s
           - arm_cortex-a15_neon-vfpv4
@@ -163,7 +162,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        branch: ['21.02', '22.03']
+        branch: ['21.02', '22.03', '23.05']
     env:
       DATE: ${{ github.event.client_payload.date }}
     steps:
