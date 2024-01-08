@@ -1,0 +1,52 @@
+Package: far2l-full
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libpcre, libssh, libxerces-c
+Source: package/far2l
+SourceName: far2l-full
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1704403786
+Architecture: i386_pentium4
+Installed-Size: 4470184
+Filename: far2l-full_2.5.3+git20240107_i386_pentium4.ipk
+Size: 4452201
+SHA256sum: 25367cfb46c63dfcf97201f17752ad32d6294c6dfde09b2420fdf9419de251b0
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6
+Source: package/far2l
+SourceName: far2l-tiny
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1704403786
+Architecture: i386_pentium4
+Installed-Size: 1285566
+Filename: far2l-tiny_2.5.3+git20240107_i386_pentium4.ipk
+Size: 1282522
+SHA256sum: bf73913882c5ca1a2630135513f824475205e4c53ad92852624daeba80e642d8
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libpcre
+Source: package/far2l
+SourceName: far2l
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1704403786
+Architecture: i386_pentium4
+Installed-Size: 2532510
+Filename: far2l_2.5.3+git20240107_i386_pentium4.ipk
+Size: 2529452
+SHA256sum: 912085c6612fa21c92438c6789ba59fd6d020370d330d1782c38312d61ac6fe1
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+

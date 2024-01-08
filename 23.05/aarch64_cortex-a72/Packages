@@ -1,0 +1,40 @@
+Package: far2l-full
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libpcre, libssh, libxerces-c
+License: GPL-2
+Section: utils
+Architecture: aarch64_cortex-a72
+Installed-Size: 4607766
+Filename: far2l-full_2.5.3+git20240107_aarch64_cortex-a72.ipk
+Size: 4574524
+SHA256sum: 1ffbe9d05d6437c5ad10f3b1a1e3f18a43140cf7f82b01267d249d140f66e9bc
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+Architecture: aarch64_cortex-a72
+Installed-Size: 1317283
+Filename: far2l-tiny_2.5.3+git20240107_aarch64_cortex-a72.ipk
+Size: 1313977
+SHA256sum: 34ffaf2efd295c485ab56bcd3fd12cb0fc1eb571bb3cecdf3afe02349a00181b
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libpcre
+License: GPL-2
+Section: utils
+Architecture: aarch64_cortex-a72
+Installed-Size: 2623175
+Filename: far2l_2.5.3+git20240107_aarch64_cortex-a72.ipk
+Size: 2617077
+SHA256sum: 0169dcc4200cf061e226347d7ae92002b31ddbbdd3cfb8555d755938be6facb4
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+

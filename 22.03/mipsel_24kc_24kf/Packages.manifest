@@ -1,0 +1,52 @@
+Package: far2l-full
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libpcre, libssh, libxerces-c
+Source: package/far2l
+SourceName: far2l-full
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1704403786
+Architecture: mipsel_24kc_24kf
+Installed-Size: 4396696
+Filename: far2l-full_2.5.3+git20240107_mipsel_24kc_24kf.ipk
+Size: 4370390
+SHA256sum: 635a319fac4e39c0b53a3b5bab5e84c42a36f1dcd49c60f98b989e1dc67cbe2c
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6
+Source: package/far2l
+SourceName: far2l-tiny
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1704403786
+Architecture: mipsel_24kc_24kf
+Installed-Size: 1241165
+Filename: far2l-tiny_2.5.3+git20240107_mipsel_24kc_24kf.ipk
+Size: 1238177
+SHA256sum: 20f741727ba9ba07536fc1ce9906dfb144fd858ca0ed6bf4adfa11063e8aa8ab
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libpcre
+Source: package/far2l
+SourceName: far2l
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1704403786
+Architecture: mipsel_24kc_24kf
+Installed-Size: 2478829
+Filename: far2l_2.5.3+git20240107_mipsel_24kc_24kf.ipk
+Size: 2473398
+SHA256sum: b8980b99468dec0cec85581944a4f84266ca01bb63fa811ec2a9b7dae9cbe725
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+

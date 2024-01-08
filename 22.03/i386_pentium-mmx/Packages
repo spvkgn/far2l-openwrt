@@ -1,0 +1,40 @@
+Package: far2l-full
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libpcre, libssh, libxerces-c
+License: GPL-2
+Section: utils
+Architecture: i386_pentium-mmx
+Installed-Size: 4758613
+Filename: far2l-full_2.5.3+git20240107_i386_pentium-mmx.ipk
+Size: 4734906
+SHA256sum: 858e6a1a4239514b9a7bcf006148d7d50c30192a01dd6c11ed132d26544e782e
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+Architecture: i386_pentium-mmx
+Installed-Size: 1411744
+Filename: far2l-tiny_2.5.3+git20240107_i386_pentium-mmx.ipk
+Size: 1408888
+SHA256sum: fb5f716ede9a54effaae5fd5fb366f7839e905aef8b8c1d5bdbdf807bdfa6fc8
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.5.3+git20240107
+Depends: libc, libstdcpp6, libarchive-noopenssl, libpcre
+License: GPL-2
+Section: utils
+Architecture: i386_pentium-mmx
+Installed-Size: 2760949
+Filename: far2l_2.5.3+git20240107_i386_pentium-mmx.ipk
+Size: 2756784
+SHA256sum: 402ddb6efc3eed9564ca6e5e5f1ac56d13150a3fda800739fddb3155d172cb3e
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
