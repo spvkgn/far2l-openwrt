@@ -1,5 +1,5 @@
 name: build
-run-name: 🌙 Nightly build for ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.sha }}
+run-name: 🌙 Nightly build 🚀 ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.date }}-${{ github.event.client_payload.sha }}
 
 on:
   repository_dispatch:
@@ -56,10 +56,10 @@ jobs:
       options: --user root
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup ccache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /builder/.ccache
           key: ccache-${{ matrix.arch }}-${{ matrix.branch }}-${{ github.event.client_payload.sha }}
@@ -79,9 +79,10 @@ jobs:
           BRANCH: ${{ matrix.branch }}
           SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
         run: |
-          VERSION=${TAG}+git${DATE}
+          VERSION=${TAG}+git$(date -d $DATE +%Y%m%d)
           cp -vr ${GITHUB_WORKSPACE}/far2l package
           sed "s|@VERSION@|$VERSION|" -i package/far2l/Makefile
+          sed "s|@GIT_DATE@|$DATE|" -i package/far2l/Makefile
           sed "s|@GIT_HASH@|$SHA|" -i package/far2l/Makefile
           sed 's|base.*\.git|base https://github.com/openwrt/openwrt.git|' -i feeds.conf.default
           sed 's|packages.*\.git|packages https://github.com/openwrt/packages.git|' -i feeds.conf.default
@@ -95,22 +96,31 @@ jobs:
           make package/index
           ls -1R ./bin/packages/*/base
           tar cvf ipk-$ARCH-$BRANCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names -C ./bin/packages/*/base .
-          # tar cJvf logs-$ARCH-$BRANCH.tar.xz ./logs
+
+      - name: Compress build logs
+        working-directory: /builder
+        shell: bash
+        env:
+          ARCH: ${{ matrix.arch }}
+          BRANCH: ${{ matrix.branch }}
+        run: |
+          tar cJvf logs-$ARCH-$BRANCH.tar.xz ./logs
 
       - name: Upload IPK
         if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ipk-${{ matrix.arch }}-${{ matrix.branch }}
           path: /builder/ipk-${{ matrix.arch }}-${{ matrix.branch }}.tar
 
       - name: Upload build logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: logs-${{ matrix.arch }}-${{ matrix.branch }}
-          path: /builder/logs/
-          # path: /builder/logs-${{ matrix.arch }}-${{ matrix.branch }}.tar.xz
+          # path: /builder/logs/
+          path: /builder/logs-${{ matrix.arch }}-${{ matrix.branch }}.tar.xz
+          retention-days: 1
 
   gh-pages:
     needs: build
@@ -119,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Merge artifacts
         id: merge
@@ -146,7 +156,7 @@ jobs:
           gistID: f53cb6c1d56b0eaf40c88d607fc5fef1
           filename: far2l-openwrt.json
           label: version
-          message: ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.sha }}
+          message: ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.date }}-${{ github.event.client_payload.sha }}
           color: blue
 
       - name: Delete workflow runs
@@ -167,7 +177,7 @@ jobs:
       DATE: ${{ github.event.client_payload.date }}
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Merge .ipk into .tar
         id: merge
@@ -176,7 +186,7 @@ jobs:
         run: |
           find . -name "ipk-*$BRANCH.tar" -exec tar xvf {} --wildcards '*.ipk' \;
           mkdir -p public
-          find $BRANCH -mindepth 1 -type d -exec sh -c 'tar cvf ./public/far2l_${DATE}_$(basename {}).ipk.tar -C {} .' \;
+          find $BRANCH -mindepth 1 -type d -exec sh -c 'tar cvf ./public/far2l_$(basename {}).ipk.tar -C {} .' \;
           ls -1hs public
 
       - name: Store .tar files
@@ -184,13 +194,11 @@ jobs:
         uses: andelf/nightly-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          URL: ${{ github.event.client_payload.url }}
-          MESSAGE: ${{ github.event.client_payload.message }}
         with:
           prerelease: false
           tag_name: ${{ matrix.branch }}
           name: '${{ env.DATE }} for OpenWrt ${{ matrix.branch }}'
           body: |
-            ${{ env.URL }}: ${{ env.MESSAGE }}
+            ${{ github.event.client_payload.url }}: ${{ github.event.client_payload.message }}
           files: |
             ./public/*.tar
