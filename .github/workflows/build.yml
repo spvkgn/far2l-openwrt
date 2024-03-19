@@ -120,7 +120,7 @@ jobs:
           name: logs-${{ matrix.arch }}-${{ matrix.branch }}
           # path: /builder/logs/
           path: /builder/logs-${{ matrix.arch }}-${{ matrix.branch }}.tar.xz
-          retention-days: 1
+          # retention-days: 1
 
   gh-pages:
     needs: build
@@ -150,7 +150,7 @@ jobs:
 
       - name: Update version for badge
         if: steps.deploy.outcome == 'success'
-        uses: schneegans/dynamic-badges-action@v1.6.0
+        uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: f53cb6c1d56b0eaf40c88d607fc5fef1
@@ -179,17 +179,17 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
 
-      - name: Merge .ipk into .tar
+      - name: Merge .ipk into zip
         id: merge
         env:
           BRANCH: ${{ matrix.branch }}
         run: |
           find . -name "ipk-*$BRANCH.tar" -exec tar xvf {} --wildcards '*.ipk' \;
           mkdir -p public
-          find $BRANCH -mindepth 1 -type d -exec sh -c 'tar cvf ./public/far2l_$(basename {}).ipk.tar -C {} .' \;
+          find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l_$(basename {}).ipk.zip -j {} {}/*' \;
           ls -1hs public
 
-      - name: Store .tar files
+      - name: Upload release assets
         if: steps.merge.outcome == 'success'
         uses: andelf/nightly-release@main
         env:
@@ -201,4 +201,4 @@ jobs:
           body: |
             ${{ github.event.client_payload.url }}: ${{ github.event.client_payload.message }}
           files: |
-            ./public/*.tar
+            ./public/*.zip
