@@ -1,0 +1,52 @@
+Package: far2l-full
+Version: 2.6.0+git20240324
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libpcre, libssh, libxerces-c
+Source: package/far2l
+SourceName: far2l-full
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1711202313
+Architecture: arm_mpcore
+Installed-Size: 4430478
+Filename: far2l-full_2.6.0+git20240324_arm_mpcore.ipk
+Size: 4403426
+SHA256sum: 6e3dd0e6c9d6121ff7da3d474742e44b58781136114a71c164f5cfade5277047
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.6.0+git20240324
+Depends: libc, libstdcpp6
+Source: package/far2l
+SourceName: far2l-tiny
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1711202313
+Architecture: arm_mpcore
+Installed-Size: 1248138
+Filename: far2l-tiny_2.6.0+git20240324_arm_mpcore.ipk
+Size: 1246037
+SHA256sum: 54737a44552a0609667ca34753f4f37189582d412f399e72ee78f486e38bdef4
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.6.0+git20240324
+Depends: libc, libstdcpp6, libarchive-noopenssl, libpcre
+Source: package/far2l
+SourceName: far2l
+License: GPL-2
+LicenseFiles: LICENSE.txt
+Section: utils
+SourceDateEpoch: 1711202313
+Architecture: arm_mpcore
+Installed-Size: 2483782
+Filename: far2l_2.6.0+git20240324_arm_mpcore.ipk
+Size: 2478014
+SHA256sum: 2d9febce3f556b732fad18779d1fb7f5f29e7cca8321e7e239cd4e30fe5873f3
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
