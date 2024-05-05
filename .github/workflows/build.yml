@@ -81,6 +81,9 @@ jobs:
         run: |
           VERSION=${TAG}+git$(date -d $DATE +%Y%m%d)
           cp -vr ${GITHUB_WORKSPACE}/far2l package
+          if [[ "${BRANCH/openwrt-}" =~ ^21|^22 ]]; then
+            patch -p1 package/far2l/Makefile ${GITHUB_WORKSPACE}/no-colorer.patch
+          fi
           sed "s|@VERSION@|$VERSION|" -i package/far2l/Makefile
           sed "s|@GIT_DATE@|$DATE|" -i package/far2l/Makefile
           sed "s|@GIT_HASH@|$SHA|" -i package/far2l/Makefile

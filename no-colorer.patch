@@ -1,0 +1,37 @@
+diff --git a/far2l/Makefile b/far2l/Makefile
+index 26793ba..3bf343a 100644
+--- a/far2l/Makefile
++++ b/far2l/Makefile
+@@ -41,7 +41,7 @@ endef
+ define Package/far2l-full
+ 	$(call Package/far2l/Default)
+ 	TITLE+= (full)
+-	DEPENDS:=+libstdcpp +libarchive-noopenssl +libneon +libpcre +libssh +libxerces-c
++	DEPENDS:=+libstdcpp +libarchive-noopenssl +libneon +libpcre +libssh
+ 	VARIANT:=full
+ endef
+ 
+@@ -58,7 +58,7 @@ endef
+ define Package/far2l-full/description
+ $(call Package/far2l/description)
+ .
+-Build with Colorer and NetRocks plugins
++Build with NetRocks plugin
+ endef
+ 
+ define Package/far2l/install
+@@ -80,12 +80,12 @@ define Package/far2l-full/install
+ endef
+ 
+ CMAKE_OPTIONS += \
+-	-DUSEUCD=no -DUSEWX=no \
++	-DCOLORER=no -DUSEUCD=no -DUSEWX=no \
+ 	-DGIT_DATE=@GIT_DATE@ -DGIT_HASH=@GIT_HASH@ -DCMAKE_DISABLE_FIND_PACKAGE_Git=ON
+ 
+ ifeq ($(BUILD_VARIANT),default)
+ 	CMAKE_OPTIONS += \
+-		-DCOLORER=no -DNETROCKS=no
++		-DNETROCKS=no
+ else ifeq ($(BUILD_VARIANT),tiny)
+ 	CMAKE_OPTIONS += \
+ 		-DFAR2MACRO=no -DFAR2TVAR=no -DCOLORER=no -DNETROCKS=no \
