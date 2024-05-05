@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.arch }}-${{ matrix.branch }} build
+    name: ${{ matrix.branch }} ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -62,9 +62,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /builder/.ccache
-          key: ccache-${{ matrix.arch }}-${{ matrix.branch }}-${{ github.event.client_payload.sha }}
+          key: ccache-${{ matrix.branch }}-${{ matrix.arch }}-${{ github.event.client_payload.sha }}
           restore-keys: |
-            ccache-${{ matrix.arch }}-${{ matrix.branch }}-
+            ccache-${{ matrix.branch }}-${{ matrix.arch }}-
 
       - name: Build packages
         id: build
@@ -98,7 +98,7 @@ jobs:
           echo "$SIGN_KEY" | base64 -d > key-build
           make package/index
           ls -1R ./bin/packages/*/base
-          tar cvf ipk-$ARCH-$BRANCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names -C ./bin/packages/*/base .
+          tar cvf ipk-$BRANCH-$ARCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names -C ./bin/packages/*/base .
 
       - name: Compress build logs
         working-directory: /builder
@@ -107,22 +107,21 @@ jobs:
           ARCH: ${{ matrix.arch }}
           BRANCH: ${{ matrix.branch }}
         run: |
-          tar cJvf logs-$ARCH-$BRANCH.tar.xz ./logs
+          tar cJvf logs-$BRANCH-$ARCH.tar.xz ./logs
 
-      - name: Upload IPK
+      - name: Upload packages
         if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: ipk-${{ matrix.arch }}-${{ matrix.branch }}
-          path: /builder/ipk-${{ matrix.arch }}-${{ matrix.branch }}.tar
+          name: ipk-${{ matrix.branch }}-${{ matrix.arch }}
+          path: /builder/ipk-${{ matrix.branch }}-${{ matrix.arch }}.tar
 
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.arch }}-${{ matrix.branch }}
-          # path: /builder/logs/
-          path: /builder/logs-${{ matrix.arch }}-${{ matrix.branch }}.tar.xz
+          name: logs-${{ matrix.branch }}-${{ matrix.arch }}
+          path: /builder/logs-${{ matrix.branch }}-${{ matrix.arch }}.tar.xz
           # retention-days: 1
 
   gh-pages:
@@ -133,6 +132,8 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
+        with:
+          pattern: ipk-*
 
       - name: Merge artifacts
         id: merge
@@ -167,7 +168,7 @@ jobs:
         continue-on-error: true
 
   release:
-    name: Upload Nightly release ${{ matrix.branch }}
+    name: Update release ${{ matrix.branch }}
     needs: gh-pages
     permissions:
       contents: write
@@ -181,19 +182,21 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
+        with:
+          pattern: ipk-openwrt-${{ matrix.branch }}-*
 
-      - name: Merge .ipk into zip
-        id: merge
+      - name: Put ipk into zip
+        id: zip
         env:
           BRANCH: ${{ matrix.branch }}
         run: |
-          find . -name "ipk-*$BRANCH.tar" -exec tar xvf {} --wildcards '*.ipk' \;
+          find . -name "ipk-openwrt-$BRANCH-*.tar" -exec tar xvf {} --wildcards '*.ipk' \;
           mkdir -p public
-          find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l_$(basename {}).ipk.zip -j {} {}/*' \;
+          find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l-$(basename {}).ipk.zip -j {} {}/*' \;
           ls -1hs public
 
       - name: Upload release assets
-        if: steps.merge.outcome == 'success'
+        if: steps.zip.outcome == 'success'
         uses: andelf/nightly-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
