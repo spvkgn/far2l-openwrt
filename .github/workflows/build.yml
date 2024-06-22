@@ -10,7 +10,6 @@ jobs:
     name: ${{ matrix.branch }} ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       # max-parallel: 8
       matrix:
         branch: [openwrt-22.03, openwrt-23.05]
@@ -68,7 +67,7 @@ jobs:
 
       - name: Build packages
         id: build
-        continue-on-error: true
+        # continue-on-error: true
         working-directory: /builder
         shell: bash
         env:
@@ -90,21 +89,20 @@ jobs:
           ./scripts/feeds install -a
           make defconfig
           make package/far2l/compile V=s -j$(nproc) CONFIG_CCACHE=1 BUILD_LOG=1
-          ./staging_dir/host/bin/ccache --dir .ccache --max-size=50M --show-stats
+          ./staging_dir/host/bin/ccache --dir .ccache --max-size=100M --show-stats
           find ./bin/packages/*/base -type f ! -name 'far2l*.ipk' -delete
           echo "$SIGN_KEY" | base64 -d > key-build
           make package/index
           ls -1R ./bin/packages/*/base
-          tar cvf ipk-$BRANCH-$ARCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names -C ./bin/packages/*/base .
+          tar -C ./bin/packages/*/base -cvf ipk-$BRANCH-$ARCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names .
 
       - name: Compress build logs
-        working-directory: /builder
-        shell: bash
+        if: always()
         env:
           ARCH: ${{ matrix.arch }}
           BRANCH: ${{ matrix.branch }}
         run: |
-          tar cJvf logs-$BRANCH-$ARCH.tar.xz ./logs
+          tar -cJvf logs-$BRANCH-$ARCH.tar.xz /builder/logs
 
       - name: Upload packages
         if: steps.build.outcome == 'success'
@@ -112,13 +110,14 @@ jobs:
         with:
           name: ipk-${{ matrix.branch }}-${{ matrix.arch }}
           path: /builder/ipk-${{ matrix.branch }}-${{ matrix.arch }}.tar
+          if-no-files-found: error
 
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: logs-${{ matrix.branch }}-${{ matrix.arch }}
-          path: /builder/logs-${{ matrix.branch }}-${{ matrix.arch }}.tar.xz
+          path: ./**/logs-${{ matrix.branch }}-${{ matrix.arch }}.tar.xz
           # retention-days: 1
 
   gh-pages:
@@ -132,16 +131,14 @@ jobs:
         with:
           pattern: ipk-*
 
-      - name: Merge artifacts
-        id: merge
+      - name: Prepare files to publish
         run: |
           mkdir public
-          find . -name 'ipk-*.tar' -exec tar xvf {} -C ./public \;
+          find . -name 'ipk-*.tar' -exec tar -C ./public -xvf {} \;
 
       - name: Deploy to GH pages
         id: deploy
-        if: steps.merge.outcome == 'success'
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           user_name: 'github-actions[bot]'
@@ -190,7 +187,6 @@ jobs:
           find . -name "ipk-openwrt-$BRANCH-*.tar" -exec tar xvf {} --wildcards '*.ipk' \;
           mkdir -p public
           find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l-$(basename {}).ipk.zip -j {} {}/*' \;
-          ls -1hs public
 
       - name: Upload release assets
         if: steps.zip.outcome == 'success'
