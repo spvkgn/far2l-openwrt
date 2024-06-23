@@ -79,7 +79,13 @@ jobs:
           SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
         run: |
           VERSION=${TAG}+git$(date -d $DATE +%Y%m%d)
-          cp -vr ${GITHUB_WORKSPACE}/far2l package
+          cp -va $GITHUB_WORKSPACE/far2l package
+          if [[ "${BRANCH/openwrt-}" =~ ^(21|22|23) ]]; then
+            PCRE=libpcre
+          else
+            PCRE=libpcre2
+          fi
+          sed "s|@PCRE@|+$PCRE|" -i package/far2l/Makefile
           sed "s|@VERSION@|$VERSION|" -i package/far2l/Makefile
           sed "s|@GIT_DATE@|$DATE|" -i package/far2l/Makefile
           sed "s|@GIT_HASH@|$SHA|" -i package/far2l/Makefile

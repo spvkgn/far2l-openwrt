@@ -27,7 +27,7 @@ endef
 
 define Package/far2l
 	$(call Package/far2l/Default)
-	DEPENDS:=+libstdcpp +libarchive-noopenssl +libpcre
+	DEPENDS:=+libstdcpp +libarchive-noopenssl @PCRE@
 	VARIANT:=default
 endef
 
@@ -41,7 +41,7 @@ endef
 define Package/far2l-full
 	$(call Package/far2l/Default)
 	TITLE+= (full)
-	DEPENDS:=+libstdcpp +libarchive-noopenssl +libneon +libpcre +libssh +libxerces-c
+	DEPENDS:=+libstdcpp +libarchive-noopenssl +libneon @PCRE@ +libssh +libxerces-c
 	VARIANT:=full
 endef
 
