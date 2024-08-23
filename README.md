@@ -1,7 +1,7 @@
 [![build status](https://github.com/spvkgn/far2l-openwrt/actions/workflows/build.yml/badge.svg)](https://github.com/spvkgn/far2l-openwrt/actions/workflows/build.yml) ![version](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/spvkgn/f53cb6c1d56b0eaf40c88d607fc5fef1/raw/far2l-openwrt.json)
 # FAR2L OpenWrt repo
 ```shell
-docker run --rm -it --name openwrt openwrt/rootfs
+docker run --rm -it --name openwrt openwrt/rootfs /bin/ash --login
 ```
 ```shell
 cat << "EOF" > /tmp/public.key

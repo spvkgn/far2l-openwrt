@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.branch }} ${{ matrix.arch }}
+    name: "${{ matrix.branch }} :: ${{ matrix.arch }}"
     runs-on: ubuntu-latest
     strategy:
       # max-parallel: 8
@@ -31,8 +31,6 @@ jobs:
           - arm_fa526
           - arm_mpcore
           - arm_xscale
-          - i386_pentium-mmx
-          - i386_pentium4
           - mips64_octeonplus
           - mips_24kc
           - mips_4kec
@@ -79,27 +77,34 @@ jobs:
           SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
         run: |
           VERSION=${TAG}+git$(date -d $DATE +%Y%m%d)
-          cp -va $GITHUB_WORKSPACE/far2l package
+
           if [[ "${BRANCH/openwrt-}" =~ ^(21|22|23) ]]; then
             PCRE=libpcre
           else
             PCRE=libpcre2
           fi
-          sed "s|@PCRE@|+$PCRE|" -i package/far2l/Makefile
-          sed "s|@VERSION@|$VERSION|" -i package/far2l/Makefile
-          sed "s|@GIT_DATE@|$DATE|" -i package/far2l/Makefile
-          sed "s|@GIT_HASH@|$SHA|" -i package/far2l/Makefile
-          sed 's|base.*\.git|base https://github.com/openwrt/openwrt.git|' -i feeds.conf.default
-          sed 's|packages.*\.git|packages https://github.com/openwrt/packages.git|' -i feeds.conf.default
-          ./scripts/feeds update base packages
-          ./scripts/feeds install -a
+          sed -e "s|@PCRE@|+$PCRE|" \
+              -e "s|@VERSION@|$VERSION|" \
+              -e "s|@GIT_DATE@|$DATE|" \
+              -e "s|@GIT_HASH@|$SHA|" -i $GITHUB_WORKSPACE/far2l/Makefile
+
+          mv feeds.conf.default feeds.conf
+          sed -e 's|base.*\.git|base https://github.com/openwrt/openwrt.git|' \
+              -e 's|packages.*\.git|packages https://github.com/openwrt/packages.git|' \
+              -e 's|luci.*\.git|luci https://github.com/openwrt/luci.git|' \
+              -e 's|routing.*\.git|routing https://github.com/openwrt/routing.git|' \
+              -e 's|telephony.*\.git|telephony https://github.com/openwrt/telephony.git|' -i feeds.conf
+          echo "src-link far2l $GITHUB_WORKSPACE" >> feeds.conf
+
+          ./scripts/feeds update base packages far2l
+          ./scripts/feeds install -a -p far2l
           make defconfig
           make package/far2l/compile V=s -j$(nproc) CONFIG_CCACHE=1 BUILD_LOG=1
           ./staging_dir/host/bin/ccache --dir .ccache --max-size=100M --show-stats
-          find ./bin/packages/*/base -type f ! -name 'far2l*.ipk' -delete
+          rm -rf ./bin/packages/*/base/*
+          mv ./bin/packages/*/far2l/*.ipk ./bin/packages/*/base
           echo "$SIGN_KEY" | base64 -d > key-build
           make package/index
-          ls -1R ./bin/packages/*/base
           tar -C ./bin/packages/*/base -cvf ipk-$BRANCH-$ARCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names .
 
       - name: Compress build logs
@@ -190,7 +195,7 @@ jobs:
         env:
           BRANCH: ${{ matrix.branch }}
         run: |
-          find . -name "ipk-openwrt-$BRANCH-*.tar" -exec tar xvf {} --wildcards '*.ipk' \;
+          find . -name "ipk-openwrt-$BRANCH-*.tar" -exec tar -xvf {} --wildcards '*.ipk' \;
           mkdir -p public
           find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l-$(basename {}).ipk.zip -j {} {}/*' \;
 
