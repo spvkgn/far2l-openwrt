@@ -3,7 +3,7 @@ run-name: 🌙 Nightly build 🚀 ${{ github.event.client_payload.tag }}-${{ git
 
 on:
   repository_dispatch:
-    types: [build-nightly]
+    types: [ build-nightly ]
 
 jobs:
   build:
@@ -12,7 +12,9 @@ jobs:
     strategy:
       # max-parallel: 8
       matrix:
-        branch: [openwrt-22.03, openwrt-23.05]
+        branch:
+          - openwrt-22.03
+          - openwrt-23.05
         arch:
           - aarch64_cortex-a53
           - aarch64_cortex-a72
@@ -43,8 +45,8 @@ jobs:
         include:
           - branch: openwrt-21.02
             arch: mipsel_24kc
-          - branch: SNAPSHOT
-            arch: x86_64
+          # - branch: SNAPSHOT
+          #   arch: x86_64
         # exclude:
         #   - branch: openwrt-21.02
         #     arch: arm_cortex-a7_vfpv4
@@ -54,6 +56,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up SDK
+        if: ${{ matrix.branch == 'openwrt-23.05' || matrix.branch == 'SNAPSHOT' }}
+        working-directory: /builder
+        shell: bash
+        run: |
+          gpg --verbose --keyserver keyserver.ubuntu.com --recv-keys 0x1D53D1877742E911 ||\
+            gpg --verbose --import <(wget -qO- 'https://git.openwrt.org/?p=keyring.git;a=blob_plain;f=gpg/0x1D53D1877742E911.asc')
+          sed -r -i 's/^rm.+//' setup.sh
+          ./setup.sh
+          ls -lh
 
       - name: Setup ccache
         uses: actions/cache@v4
@@ -181,7 +194,10 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        branch: ['21.02', '22.03', '23.05']
+        branch:
+          - '21.02'
+          - '22.03'
+          - '23.05'
     env:
       DATE: ${{ github.event.client_payload.date }}
     steps:
