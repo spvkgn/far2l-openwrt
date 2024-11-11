@@ -45,8 +45,8 @@ jobs:
         include:
           - branch: openwrt-21.02
             arch: mipsel_24kc
-          # - branch: SNAPSHOT
-          #   arch: x86_64
+          - branch: SNAPSHOT
+            arch: x86_64
         # exclude:
         #   - branch: openwrt-21.02
         #     arch: arm_cortex-a7_vfpv4
@@ -58,7 +58,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up SDK
-        if: ${{ matrix.branch == 'openwrt-23.05' || matrix.branch == 'SNAPSHOT' }}
+        if: matrix.branch == 'openwrt-23.05' || matrix.branch == 'SNAPSHOT'
         working-directory: /builder
         shell: bash
         run: |
@@ -89,7 +89,7 @@ jobs:
           BRANCH: ${{ matrix.branch }}
           SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
         run: |
-          VERSION=${TAG}+git$(date -d $DATE +%Y%m%d)
+          VERSION=${TAG}.$(date -d $DATE +%Y%m%d)
 
           if [[ "${BRANCH/openwrt-}" =~ ^(21|22|23) ]]; then
             PCRE=libpcre
@@ -115,10 +115,11 @@ jobs:
           make package/far2l/compile V=s -j$(nproc) CONFIG_CCACHE=1 BUILD_LOG=1
           ./staging_dir/host/bin/ccache --dir .ccache --max-size=100M --show-stats
           rm -rf ./bin/packages/*/base/*
-          mv ./bin/packages/*/far2l/*.ipk ./bin/packages/*/base
+          ls -lh ./bin/packages/*/far2l
+          mv ./bin/packages/*/far2l/*.*pk ./bin/packages/*/base
           echo "$SIGN_KEY" | base64 -d > key-build
           make package/index
-          tar -C ./bin/packages/*/base -cvf ipk-$BRANCH-$ARCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names .
+          tar -C ./bin/packages/*/base -cvf pkg-$BRANCH-$ARCH.tar --transform "s|^\./|${BRANCH/openwrt-}/$ARCH/|" --show-transformed-names .
 
       - name: Compress build logs
         if: always()
@@ -132,8 +133,8 @@ jobs:
         if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: ipk-${{ matrix.branch }}-${{ matrix.arch }}
-          path: /builder/ipk-${{ matrix.branch }}-${{ matrix.arch }}.tar
+          name: pkg-${{ matrix.branch }}-${{ matrix.arch }}
+          path: /builder/*.tar
           if-no-files-found: error
 
       - name: Upload build logs
@@ -141,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: logs-${{ matrix.branch }}-${{ matrix.arch }}
-          path: ./**/logs-${{ matrix.branch }}-${{ matrix.arch }}.tar.xz
+          path: logs-*.tar.xz
           # retention-days: 1
 
   gh-pages:
@@ -153,12 +154,12 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: ipk-*
+          pattern: pkg-*
 
       - name: Prepare files to publish
         run: |
           mkdir public
-          find . -name 'ipk-*.tar' -exec tar -C ./public -xvf {} \;
+          find . -name 'pkg-*.tar' -exec tar -C ./public -xvf {} \;
 
       - name: Deploy to GH pages
         id: deploy
@@ -204,19 +205,17 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: ipk-openwrt-${{ matrix.branch }}-*
+          pattern: pkg-openwrt-${{ matrix.branch }}-*
 
-      - name: Put ipk into zip
-        id: zip
+      - name: Put packages into zip
         env:
           BRANCH: ${{ matrix.branch }}
         run: |
-          find . -name "ipk-openwrt-$BRANCH-*.tar" -exec tar -xvf {} --wildcards '*.ipk' \;
+          find . -name "pkg-openwrt-$BRANCH-*.tar" -exec tar -xvf {} --wildcards '*.*pk' \;
           mkdir -p public
-          find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l-$(basename {}).ipk.zip -j {} {}/*' \;
+          find $BRANCH -mindepth 1 -type d -exec sh -c 'zip -0 ./public/far2l-$(basename {}).zip -j {} {}/*' \;
 
       - name: Upload release assets
-        if: steps.zip.outcome == 'success'
         uses: andelf/nightly-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
