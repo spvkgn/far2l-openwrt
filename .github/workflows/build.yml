@@ -53,6 +53,7 @@ jobs:
     container:
       image: openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
+    defaults: { run: { shell: bash } }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,13 +61,8 @@ jobs:
       - name: Set up SDK
         if: matrix.branch == 'openwrt-23.05' || matrix.branch == 'SNAPSHOT'
         working-directory: /builder
-        shell: bash
         run: |
-          gpg --verbose --keyserver keyserver.ubuntu.com --recv-keys 0x1D53D1877742E911 ||\
-            gpg --verbose --import <(wget -qO- 'https://git.openwrt.org/?p=keyring.git;a=blob_plain;f=gpg/0x1D53D1877742E911.asc')
-          sed -r -i 's/^rm.+//' setup.sh
-          ./setup.sh
-          ls -lh
+          HOME=/builder ./setup.sh
 
       - name: Setup ccache
         uses: actions/cache@v4
@@ -80,7 +76,6 @@ jobs:
         id: build
         # continue-on-error: true
         working-directory: /builder
-        shell: bash
         env:
           DATE: ${{ github.event.client_payload.date }}
           SHA: ${{ github.event.client_payload.sha }}
