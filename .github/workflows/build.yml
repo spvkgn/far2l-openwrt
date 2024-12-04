@@ -91,13 +91,7 @@ jobs:
         run: |
           VERSION=${TAG}.$(date -d $DATE +%Y%m%d)
 
-          if [[ "${BRANCH/openwrt-}" =~ ^(21|22|23) ]]; then
-            PCRE=libpcre
-          else
-            PCRE=libpcre2
-          fi
-          sed -e "s|@PCRE@|+$PCRE|" \
-              -e "s|@VERSION@|$VERSION|" \
+          sed -e "s|@VERSION@|$VERSION|" \
               -e "s|@GIT_DATE@|$DATE|" \
               -e "s|@GIT_HASH@|$SHA|" -i $GITHUB_WORKSPACE/far2l/Makefile
 
