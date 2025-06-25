@@ -1,52 +1,81 @@
 name: build
-run-name: 🌙 Nightly build 🚀 ${{ github.event.client_payload.tag }}-${{ github.event.client_payload.date }}-${{ github.event.client_payload.sha }}
+run-name: ${{ github.event_name == 'repository_dispatch' && format('🌙 Nightly build 🚀 {0}-{1}-{2}', github.event.client_payload.tag, github.event.client_payload.date, github.event.client_payload.sha) || null }}
 
 on:
+  workflow_dispatch:
   repository_dispatch:
     types: [ build-nightly ]
 
 jobs:
+  check:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      date: ${{ steps.gh.outputs.date }}
+      sha: ${{ steps.gh.outputs.sha }}
+      tag: ${{ steps.gh.outputs.tag }}
+      url: ${{ steps.gh.outputs.url }}
+      message: ${{ steps.gh.outputs.message }}
+    steps:
+      - name: GH API
+        id: gh
+        env:
+          REPO: 'elfmz/far2l'
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH=$(gh api repos/$REPO --jq '.default_branch')
+          DATE=$(gh api repos/$REPO/commits/$BRANCH --jq '.commit.committer.date')
+          {
+            echo "date=$(date --utc -d $DATE +%F)"
+            echo "sha=$(gh api repos/$REPO/commits/$BRANCH --jq '.sha[0:7]')"
+            echo "tag=$(wget -qO- https://raw.githubusercontent.com/$REPO/$BRANCH/packaging/version)"
+            echo "url=$(gh api repos/$REPO/commits/$BRANCH --jq '.html_url')"
+            echo "message=$(gh api repos/$REPO/commits/$BRANCH | jq -c '.commit.message' | perl -pe 's/^"|"$//g;' -pe "s|(?=#\d+)|$REPO|g")"
+          } >> $GITHUB_OUTPUT
+
   build:
     name: "${{ matrix.branch }} :: ${{ matrix.arch }}"
+    needs: check
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     strategy:
       # max-parallel: 8
       matrix:
-        branch:
-          - openwrt-22.03
-          - openwrt-23.05
-        arch:
-          - aarch64_cortex-a53
-          - aarch64_cortex-a72
-          - aarch64_generic
-          - arm_arm1176jzf-s_vfp
-          - arm_arm926ej-s
-          - arm_cortex-a15_neon-vfpv4
-          - arm_cortex-a5_vfpv4
-          - arm_cortex-a7
-          - arm_cortex-a7_neon-vfpv4
-          - arm_cortex-a7_vfpv4
-          - arm_cortex-a8_vfpv3
-          - arm_cortex-a9
-          - arm_cortex-a9_neon
-          - arm_cortex-a9_vfpv3-d16
-          - arm_fa526
-          - arm_mpcore
-          - arm_xscale
-          - mips64_octeonplus
-          - mips_24kc
-          - mips_4kec
-          - mips_mips32
-          - mipsel_24kc
-          - mipsel_24kc_24kf
-          - mipsel_74kc
-          - mipsel_mips32
-          - x86_64
+        # branch:
+        #   - openwrt-22.03
+        #   - openwrt-23.05
+        # arch:
+        #   - aarch64_cortex-a53
+        #   - aarch64_cortex-a72
+        #   - aarch64_generic
+        #   - arm_arm1176jzf-s_vfp
+        #   - arm_arm926ej-s
+        #   - arm_cortex-a15_neon-vfpv4
+        #   - arm_cortex-a5_vfpv4
+        #   - arm_cortex-a7
+        #   - arm_cortex-a7_neon-vfpv4
+        #   - arm_cortex-a7_vfpv4
+        #   - arm_cortex-a8_vfpv3
+        #   - arm_cortex-a9
+        #   - arm_cortex-a9_neon
+        #   - arm_cortex-a9_vfpv3-d16
+        #   - arm_fa526
+        #   - arm_mpcore
+        #   - arm_xscale
+        #   - mips64_octeonplus
+        #   - mips_24kc
+        #   - mips_4kec
+        #   - mips_mips32
+        #   - mipsel_24kc
+        #   - mipsel_24kc_24kf
+        #   - mipsel_74kc
+        #   - mipsel_mips32
+        #   - x86_64
         include:
           - branch: openwrt-21.02
             arch: mipsel_24kc
-          - branch: SNAPSHOT
-            arch: x86_64
+          # - branch: SNAPSHOT
+          #   arch: x86_64
         # exclude:
         #   - branch: openwrt-21.02
         #     arch: arm_cortex-a7_vfpv4
@@ -68,7 +97,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /builder/.ccache
-          key: ccache-${{ matrix.branch }}-${{ matrix.arch }}-${{ github.event.client_payload.sha }}
+          key: ccache-${{ matrix.branch }}-${{ matrix.arch }}-${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || github.run_id }}
           restore-keys: |
             ccache-${{ matrix.branch }}-${{ matrix.arch }}-
 
@@ -77,9 +106,9 @@ jobs:
         # continue-on-error: true
         working-directory: /builder
         env:
-          DATE: ${{ github.event.client_payload.date }}
-          SHA: ${{ github.event.client_payload.sha }}
-          TAG: ${{ github.event.client_payload.tag }}
+          DATE: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.date || needs.check.outputs.date }}
+          SHA: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || needs.check.outputs.sha }}
+          TAG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.tag || needs.check.outputs.tag }}
           ARCH: ${{ matrix.arch }}
           BRANCH: ${{ matrix.branch }}
           SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
@@ -136,6 +165,7 @@ jobs:
 
   gh-pages:
     needs: build
+    if: github.event_name == 'repository_dispatch'
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -178,6 +208,7 @@ jobs:
   release:
     name: Update release ${{ matrix.branch }}
     needs: gh-pages
+    if: github.event_name == 'repository_dispatch'
     permissions:
       contents: write
     runs-on: ubuntu-latest
