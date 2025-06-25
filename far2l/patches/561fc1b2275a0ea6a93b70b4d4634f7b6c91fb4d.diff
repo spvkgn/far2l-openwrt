@@ -1,0 +1,13 @@
+diff --git a/far2l/src/macro/nomacro.cpp b/far2l/src/macro/nomacro.cpp
+index dc61f83be..c18a64a94 100644
+--- a/far2l/src/macro/nomacro.cpp
++++ b/far2l/src/macro/nomacro.cpp
+@@ -16,7 +16,7 @@ nomacro.hpp
+ 
+ KeyMacro::KeyMacro() {}
+ KeyMacro::~KeyMacro() {}
+-int KeyMacro::ProcessKey(FarKey Key) { return 0; }
++bool KeyMacro::ProcessKey(FarKey Key) { return false; }
+ FarKey KeyMacro::GetKey() { return 0; }
+ FarKey KeyMacro::PeekKey() { return 0; }
+ bool KeyMacro::CheckWaitKeyFunc() { return false; }
