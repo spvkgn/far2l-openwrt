@@ -15,9 +15,11 @@ jobs:
         branch:
           - openwrt-22.03
           - openwrt-23.05
+          - openwrt-24.10
         arch:
           - aarch64_cortex-a53
           - aarch64_cortex-a72
+          - aarch64_cortex-a76
           - aarch64_generic
           - arm_arm1176jzf-s_vfp
           - arm_arm926ej-s
@@ -42,14 +44,18 @@ jobs:
           - mipsel_74kc
           - mipsel_mips32
           - x86_64
+        exclude:
+          - branch: openwrt-22.03
+            arch: aarch64_cortex-a76
+          - branch: openwrt-23.05
+            arch: aarch64_cortex-a76
+          - branch: openwrt-24.10
+            arch: arm_mpcore
         include:
           - branch: openwrt-21.02
             arch: mipsel_24kc
           - branch: SNAPSHOT
             arch: x86_64
-        # exclude:
-        #   - branch: openwrt-21.02
-        #     arch: arm_cortex-a7_vfpv4
     container:
       image: openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
@@ -59,7 +65,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up SDK
-        if: matrix.branch == 'openwrt-23.05' || matrix.branch == 'SNAPSHOT'
+        if: matrix.branch == 'openwrt-23.05' || matrix.branch == 'openwrt-24.10' || matrix.branch == 'SNAPSHOT'
         working-directory: /builder
         run: |
           HOME=/builder ./setup.sh
@@ -188,6 +194,7 @@ jobs:
           - '21.02'
           - '22.03'
           - '23.05'
+          - '24.10'
     env:
       DATE: ${{ github.event.client_payload.date }}
     steps:
