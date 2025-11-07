@@ -126,7 +126,7 @@ jobs:
 
       - name: Upload packages
         if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pkg-${{ matrix.branch }}-${{ matrix.arch }}
           path: /builder/*.tar
@@ -134,7 +134,7 @@ jobs:
 
       - name: Upload build logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: logs-${{ matrix.branch }}-${{ matrix.arch }}
           path: logs-*.tar.xz
