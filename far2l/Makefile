@@ -80,7 +80,7 @@ define Package/far2l-full/install
 endef
 
 CMAKE_OPTIONS += \
-	-DARCLITE=no -DOPENWITH=no -DUSEUCD=no -DUSEWX=no \
+	-DARCLITE=no -DIMAGEVIEWER=no -DOPENWITH=no -DUSEUCD=no -DUSEWX=no \
 	-DGIT_DATE=@GIT_DATE@ -DGIT_HASH=@GIT_HASH@ -DCMAKE_DISABLE_FIND_PACKAGE_Git=ON
 
 ifeq ($(BUILD_VARIANT),default)
