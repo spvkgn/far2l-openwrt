@@ -1,0 +1,43 @@
+Package: far2l-full
+Version: 2.7.0.20251115
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2-16
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: x86_64
+Installed-Size: 23859200
+Filename: far2l-full_2.7.0.20251115_x86_64.ipk
+Size: 5209172
+SHA256sum: 0e522ecb861c5001358803451902a3d0ce085382e267ed0bb251a4ecdd70b2f9
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.7.0.20251115
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: x86_64
+Installed-Size: 3809280
+Filename: far2l-tiny_2.7.0.20251115_x86_64.ipk
+Size: 1543927
+SHA256sum: e30b4923692193d1adf3ab628fb49752cda8b2418f64274dad63c6ff59cdacec
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.7.0.20251115
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: x86_64
+Installed-Size: 8181760
+Filename: far2l_2.7.0.20251115_x86_64.ipk
+Size: 3051662
+SHA256sum: bb15ab9133cdb4141bcdd9edb0f62c986e3cdf8e0c587ebe809c46aeb104e6e4
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
