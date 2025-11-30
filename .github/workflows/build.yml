@@ -13,7 +13,6 @@ jobs:
       # max-parallel: 8
       matrix:
         branch:
-          - openwrt-22.03
           - openwrt-23.05
           - openwrt-24.10
         arch:
@@ -45,8 +44,6 @@ jobs:
           - mipsel_mips32
           - x86_64
         exclude:
-          - branch: openwrt-22.03
-            arch: aarch64_cortex-a76
           - branch: openwrt-23.05
             arch: aarch64_cortex-a76
           - branch: openwrt-24.10
@@ -192,7 +189,6 @@ jobs:
       matrix:
         branch:
           - '21.02'
-          - '22.03'
           - '23.05'
           - '24.10'
     env:
