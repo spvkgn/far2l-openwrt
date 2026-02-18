@@ -64,7 +64,11 @@ jobs:
       - name: Set up SDK
         if: matrix.branch == 'openwrt-23.05' || matrix.branch == 'openwrt-24.10' || matrix.branch == 'SNAPSHOT'
         working-directory: /builder
-        run: ./setup.sh || UPSTREAM_URL=https://mirror-03.infra.openwrt.org ./setup.sh
+        run: |
+          if [[ ${{ matrix.branch }} == 'openwrt-23.05' ]]; then
+            export VERSION_PATH="releases/23.05.6"
+          fi
+          ./setup.sh || UPSTREAM_URL=https://mirror-03.infra.openwrt.org ./setup.sh
 
       - name: Set up ccache
         uses: actions/cache@v4
