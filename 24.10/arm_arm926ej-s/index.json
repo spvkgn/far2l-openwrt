@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "architecture": "arm_arm926ej-s",
+  "packages": {
+    "far2l-full": "2.7.0.20260224",
+    "far2l-tiny": "2.7.0.20260224",
+    "far2l": "2.7.0.20260224"
+  }
+}

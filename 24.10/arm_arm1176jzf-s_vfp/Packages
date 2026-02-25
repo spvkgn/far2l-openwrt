@@ -1,0 +1,43 @@
+Package: far2l-full
+Version: 2.7.0.20260224
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2-16
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_arm1176jzf-s_vfp
+Installed-Size: 23111680
+Filename: far2l-full_2.7.0.20260224_arm_arm1176jzf-s_vfp.ipk
+Size: 4980684
+SHA256sum: 9eec845f683ac599c4014385ab8fe5e0df91397d749c66b8fdc3d3c678b31d9c
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.7.0.20260224
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_arm1176jzf-s_vfp
+Installed-Size: 3471360
+Filename: far2l-tiny_2.7.0.20260224_arm_arm1176jzf-s_vfp.ipk
+Size: 1465078
+SHA256sum: f2a54876d0faa7ca4ff54c46a3bfe017c89c20e41c830900bb835094ae22adbf
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only english language
+
+Package: far2l
+Version: 2.7.0.20260224
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_arm1176jzf-s_vfp
+Installed-Size: 7700480
+Filename: far2l_2.7.0.20260224_arm_arm1176jzf-s_vfp.ipk
+Size: 2912591
+SHA256sum: a4b821b3a4f77c210707387d735b427fecc0c7e2505e06bb0855435246647e45
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
