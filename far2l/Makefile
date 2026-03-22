@@ -52,7 +52,7 @@ endef
 define Package/far2l-tiny/description
 $(call Package/far2l/description)
 .
-Build with no plugins, only english language
+Build with no plugins, only English language
 endef
 
 define Package/far2l-full/description
@@ -66,6 +66,8 @@ define Package/far2l/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/far2l $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/far2l/* $(1)/usr/lib/far2l/
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/far2l/* $(1)/usr/share/far2l/
+	$(RM) -rf $(1)/usr/lib/far2l/themes
+	$(RM) -rf $(1)/usr/share/far2l/themes/CMakeFiles
 endef
 
 define Package/far2l-tiny/install
@@ -77,6 +79,8 @@ endef
 
 define Package/far2l-full/install
 	$(call Package/far2l/install,$1)
+	$(RM) -rf $(1)/usr/lib/far2l/themes
+	$(RM) -rf $(1)/usr/share/far2l/themes/CMakeFiles
 endef
 
 CMAKE_OPTIONS += \
@@ -91,7 +95,8 @@ else ifeq ($(BUILD_VARIANT),tiny)
 		-DFAR2MACRO=no -DFAR2TVAR=no -DCOLORER=no -DNETROCKS=no \
 		-DALIGN=no -DAUTOWRAP=no -DCALC=no -DCOMPARE=no -DDRAWLINE=no \
 		-DEDITCASE=no -DEDITORCOMP=no -DFILECASE=no -DINCSRCH=no \
-		-DINSIDE=no -DMULTIARC=no -DSIMPLEINDENT=no -DTMPPANEL=no -DHEXITOR=no
+		-DINSIDE=no -DMULTIARC=no -DSIMPLEINDENT=no -DTMPPANEL=no \
+		-DHEXITOR=no -DTRUNCATE=no -DEDSORT=no -DMEMO=no
 endif
 
 ifdef CONFIG_USE_MUSL
