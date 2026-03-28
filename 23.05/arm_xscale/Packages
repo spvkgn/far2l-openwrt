@@ -1,0 +1,40 @@
+Package: far2l-full
+Version: 2.8.0.20260327
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2
+License: GPL-2
+Section: utils
+Architecture: arm_xscale
+Installed-Size: 5042641
+Filename: far2l-full_2.8.0.20260327_arm_xscale.ipk
+Size: 5011071
+SHA256sum: 3d96c8c058ed7de0e3bd02aad49050f9b5d72cdc1a5c6fe7f8875fc7c66024b5
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.8.0.20260327
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+Architecture: arm_xscale
+Installed-Size: 1472492
+Filename: far2l-tiny_2.8.0.20260327_arm_xscale.ipk
+Size: 1469567
+SHA256sum: 6922c6754bcce6b13c3da3ddf94abeaf5ba73d65695da2aab1a7bdfe893b24df
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only English language
+
+Package: far2l
+Version: 2.8.0.20260327
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+Architecture: arm_xscale
+Installed-Size: 2955048
+Filename: far2l_2.8.0.20260327_arm_xscale.ipk
+Size: 2949622
+SHA256sum: 25b67ed8ee7886136632a1b06ac7aa7fb8f757948651dc654ba8b170647df049
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+

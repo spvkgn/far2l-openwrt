@@ -1,0 +1,40 @@
+Package: far2l-full
+Version: 2.8.0.20260327
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2
+License: GPL-2
+Section: utils
+Architecture: arm_cortex-a7_vfpv4
+Installed-Size: 4985446
+Filename: far2l-full_2.8.0.20260327_arm_cortex-a7_vfpv4.ipk
+Size: 4956531
+SHA256sum: e7933c927b7e0b830c8ca97463126b1aa6d3ca8b56f6e6b3b410a89464a9425c
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.8.0.20260327
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+Architecture: arm_cortex-a7_vfpv4
+Installed-Size: 1453712
+Filename: far2l-tiny_2.8.0.20260327_arm_cortex-a7_vfpv4.ipk
+Size: 1450749
+SHA256sum: 956bf1729c37fbab9db5c432e291eeb8545d1699d5f1c2b9f5390d2410cfed94
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only English language
+
+Package: far2l
+Version: 2.8.0.20260327
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+Architecture: arm_cortex-a7_vfpv4
+Installed-Size: 2911785
+Filename: far2l_2.8.0.20260327_arm_cortex-a7_vfpv4.ipk
+Size: 2906522
+SHA256sum: 177eabd9c6624462452083f20328a7daf58ebf541bda7346a6135c6d0a7efc64
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
