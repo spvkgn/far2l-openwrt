@@ -215,6 +215,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          only-when-changed: false
           prerelease: false
           tag_name: ${{ matrix.branch }}
           name: '${{ env.DATE }} for OpenWrt ${{ matrix.branch }}'
