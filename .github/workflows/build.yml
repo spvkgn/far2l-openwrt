@@ -48,9 +48,9 @@ jobs:
             arch: aarch64_cortex-a76
           - branch: openwrt-24.10
             arch: arm_mpcore
-        include:
-          - branch: openwrt-21.02
-            arch: mipsel_24kc
+        # include:
+        #   - branch: openwrt-21.02
+        #     arch: mipsel_24kc
           # - branch: SNAPSHOT
           #   arch: x86_64
     container:
@@ -191,7 +191,7 @@ jobs:
       max-parallel: 1
       matrix:
         branch:
-          - '21.02'
+          # - '21.02'
           - '23.05'
           - '24.10'
     env:
