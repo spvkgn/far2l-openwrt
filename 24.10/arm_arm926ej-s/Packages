@@ -1,0 +1,43 @@
+Package: far2l-full
+Version: 2.9.0.20260903
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2-16
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_arm926ej-s
+Installed-Size: 24842240
+Filename: far2l-full_2.9.0.20260903_arm_arm926ej-s.ipk
+Size: 5599735
+SHA256sum: d64d0fbe11a244675ec5a52846cc37b813e5d2b03d805a889ca4905f5ddac7ca
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.9.0.20260903
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_arm926ej-s
+Installed-Size: 3809280
+Filename: far2l-tiny_2.9.0.20260903_arm_arm926ej-s.ipk
+Size: 1600616
+SHA256sum: 8a58694a60bf01cb6ea09049d9f41d5ce34a052d75955459017dc748509b380a
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only English language
+
+Package: far2l
+Version: 2.9.0.20260903
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_arm926ej-s
+Installed-Size: 8888320
+Filename: far2l_2.9.0.20260903_arm_arm926ej-s.ipk
+Size: 3289573
+SHA256sum: c5ee9d3cba2c111eee96363c541be4115a3638210ce1926e32d2fed18c7d5f0a
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
