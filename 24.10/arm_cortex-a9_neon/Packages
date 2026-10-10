@@ -1,0 +1,43 @@
+Package: far2l-full
+Version: 2.9.1.20261009
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2-16
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_cortex-a9_neon
+Installed-Size: 25108480
+Filename: far2l-full_2.9.1.20261009_arm_cortex-a9_neon.ipk
+Size: 5649711
+SHA256sum: de1ffdc740b62cbe54acbdf179e134555ec6425da295e456b830407fa62925c0
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.9.1.20261009
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_cortex-a9_neon
+Installed-Size: 3860480
+Filename: far2l-tiny_2.9.1.20261009_arm_cortex-a9_neon.ipk
+Size: 1628059
+SHA256sum: 3663dfade9650f3012cfcfc795eb3c4f1ea131e487ebb6a250d9b012fa354420
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only English language
+
+Package: far2l
+Version: 2.9.1.20261009
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: arm_cortex-a9_neon
+Installed-Size: 8867840
+Filename: far2l_2.9.1.20261009_arm_cortex-a9_neon.ipk
+Size: 3303152
+SHA256sum: ded5f3b51c41d6c346cbbf41bffa348e6e8e858b23daa23ab8b1d0c7b5a910c4
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
