@@ -1,0 +1,43 @@
+Package: far2l-full
+Version: 2.9.1.20261027
+Depends: libc, libstdcpp6, libarchive-noopenssl, libneon, libssh, libxml2-16
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: mips_4kec
+Installed-Size: 26009600
+Filename: far2l-full_2.9.1.20261027_mips_4kec.ipk
+Size: 5633650
+SHA256sum: 0a768e706f2e3ebf4a202d09af6e642b81a6126c66c8178ae0b805ca8c0b7311
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with Colorer and NetRocks plugins
+
+Package: far2l-tiny
+Version: 2.9.1.20261027
+Depends: libc, libstdcpp6
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: mips_4kec
+Installed-Size: 3911680
+Filename: far2l-tiny_2.9.1.20261027_mips_4kec.ipk
+Size: 1637672
+SHA256sum: 681f403c3348d0f78f77e8fcaf30a7c969fb651ffe7a3af4d9b1ee13b8284b22
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+ .
+ Build with no plugins, only English language
+
+Package: far2l
+Version: 2.9.1.20261027
+Depends: libc, libstdcpp6, libarchive-noopenssl
+License: GPL-2
+Section: utils
+URL: https://github.com/elfmz/far2l
+Architecture: mips_4kec
+Installed-Size: 9502720
+Filename: far2l_2.9.1.20261027_mips_4kec.ipk
+Size: 3306817
+SHA256sum: 173d031ace1f221376da8d8a3a9a4ebc741cf9a667ee90c78b8f34fb61612df3
+Description:  Linux port of FAR Manager v2 (http://farmanager.com)
+
